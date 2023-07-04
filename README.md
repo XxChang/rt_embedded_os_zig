@@ -1,0 +1,2 @@
+# rt_embedded_os_zig
+使用zig语言实现的ARM平台的实时操作系统，主要是个人练习向的项目
