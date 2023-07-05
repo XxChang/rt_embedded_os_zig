@@ -34,4 +34,10 @@ pub fn build(b: *std.Build) !void {
     const debug_step = b.step("debug", "Debug bin with gdb");
 
     debug_step.dependOn(&debug_cmd.step);
+
+    const show_symbol_cmd = b.addSystemCommand(&[_][]const u8{ "arm-none-eabi-nm", "zig-out/bin/lcd_driver" });
+    show_symbol_cmd.step.dependOn(b.getInstallStep());
+    const show_symbol_step = b.step("show_symbol", "Show bin file symbol");
+
+    show_symbol_step.dependOn(&show_symbol_cmd.step);
 }

@@ -1,4 +1,4 @@
-const fb: *volatile i32 = 0x200000;
+pub var fb: *volatile i32 = @intToPtr(*volatile i32, 0x200000);
 
 pub fn fbuf_init() void {
     @intToPtr(*volatile u32, 0x1000001c).* = 0x2c77;
