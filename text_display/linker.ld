@@ -2,7 +2,7 @@ ENTRY(start)
 SECTIONS
 {
     . = 0x10000;
-    .text : { ts.o font.o *(.text) }
+    .text : { ts.o *(.text) }
     .data : { *(.data) }    /* all data in .data section */
     .bss  : { *(.bss)  }    /* all bss in .bss section */
     

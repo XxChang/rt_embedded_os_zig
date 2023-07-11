@@ -17,7 +17,6 @@ pub fn build(b: *std.Build) !void {
     });
 
     exe.addAssemblyFile("ts.s");
-    exe.addAssemblyFile("font.S");
 
     exe.setLinkerScriptPath(.{ .path = "linker.ld" });
 
