@@ -135,10 +135,11 @@ pub const fonts0 = [_]u8{
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
-const Color = enum(u2) { RED, BLUE, GREEN, WHITE };
-var color: Color = undefined;
-var row: usize = undefined;
-var col: usize = undefined;
+const tab = [_]u8{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+pub const Color = enum(u2) { RED, BLUE, GREEN, WHITE };
+pub var color: Color = undefined;
+var row: usize = 0;
+var col: usize = 0;
 var scroll_row: usize = undefined;
 const cursor: u8 = 127;
 
@@ -189,12 +190,12 @@ fn dchar(c: u8, x: usize, y: usize) void {
 pub fn undchar(c: u8, x: usize, y: usize) void {
     const index = @as(usize, c) * 16;
     const caddress = fonts0[index..];
-    for (0..16) |row| {
-        const byte = caddress[row];
+    for (0..16) |row_index| {
+        const byte = caddress[row_index];
         for (0..8) |bit| {
             const flag: u8 = 1;
             if ((byte & (flag << @intCast(u3, bit))) != 0) {
-                setpix(x + bit, y + row);
+                clrpix(x + bit, y + row_index);
             }
         }
     }
@@ -229,7 +230,7 @@ fn erasechar() void {
 }
 
 fn clrcursor() void {
-    unkpchar(127, row, col);
+    unkpchar(cursor, row, col);
 }
 
 fn putcursor(c: u8) void {
@@ -273,17 +274,11 @@ fn kputc(c: u8) void {
     putcursor(cursor);
 }
 
-pub fn kprints(s: [*]const u8) void {
-    while (s[0] != 0) {
-        kputc(s[0]);
-        s = s + 1;
-    }
-}
-
-pub fn krpx(x: usize) void {
-    var c: u8 = 0;
-    _ = c;
-    if (x != 0) {
-        // c = tab
+pub fn kprintf(x: []const u8) void {
+    for (x) |c| {
+        kputc(c);
+        if (c == '\n') {
+            kputc('\r');
+        }
     }
 }
