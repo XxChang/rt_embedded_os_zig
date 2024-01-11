@@ -3,10 +3,10 @@ const uart = @import("uart.zig");
 const v = [_]u8{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
 export fn main() callconv(.C) i32 {
-    var string = [_]u8{0} ** 30;
-    string[0] = 'h';
     uart.uart1.prints("Enter lines from serial terminal 0\n\r");
     while (true) {
+        var string = [_]u8{0} ** 30;
+        string[0] = 'h';
         uart.uart1.gets(&string);
         uart.uart1.prints("   ");
         uart.uart1.prints(string[0..]);
@@ -25,8 +25,8 @@ export fn main() callconv(.C) i32 {
         sum += i;
     }
     uart.uart1.prints("sum = ");
-    uart.uart1.putc(@intCast(u8, @divTrunc(sum, 10) + '0'));
-    uart.uart1.putc(@intCast(u8, @mod(sum, 10) + '0'));
+    uart.uart1.putc(@as(u8, @intCast(@divTrunc(sum, 10) + '0')));
+    uart.uart1.putc(@as(u8, @intCast(@mod(sum, 10) + '0')));
     uart.uart1.prints("\r\nEND OF RUN\n\r");
 
     return 0;

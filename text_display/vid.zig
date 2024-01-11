@@ -1,4 +1,4 @@
-pub var fb: [*]volatile i32 = @intToPtr([*]volatile i32, 0x200000);
+pub var fb: [*]volatile i32 = @ptrFromInt(0x200000);
 pub const fonts0 = [_]u8{
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -144,13 +144,13 @@ var scroll_row: usize = undefined;
 const cursor: u8 = 127;
 
 pub fn fbuf_init() void {
-    @intToPtr(*volatile u32, 0x1000001c).* = 0x2c77;
-    @intToPtr(*volatile u32, 0x10120000).* = 0x3f1f3f9c;
-    @intToPtr(*volatile u32, 0x10120004).* = 0x090b61df;
-    @intToPtr(*volatile u32, 0x10120008).* = 0x067f1800;
+    @as(*volatile u32, @ptrFromInt(0x1000001c)).* = 0x2c77;
+    @as(*volatile u32, @ptrFromInt(0x10120000)).* = 0x3f1f3f9c;
+    @as(*volatile u32, @ptrFromInt(0x10120004)).* = 0x090b61df;
+    @as(*volatile u32, @ptrFromInt(0x10120008)).* = 0x067f1800;
 
-    @intToPtr(*volatile u32, 0x10120010).* = 0x200000;
-    @intToPtr(*volatile u32, 0x10120018).* = 0x82b;
+    @as(*volatile u32, @ptrFromInt(0x10120010)).* = 0x200000;
+    @as(*volatile u32, @ptrFromInt(0x10120018)).* = 0x82b;
 }
 
 pub fn clrpix(x: usize, y: usize) void {
@@ -180,7 +180,7 @@ fn dchar(c: u8, x: usize, y: usize) void {
         const byte = fonts0[index + r];
         for (0..8) |bit| {
             const flag: u8 = 1;
-            if ((byte & (flag << @intCast(u3, bit))) != 0) {
+            if ((byte & (flag << @as(u3, @intCast(bit)))) != 0) {
                 setpix(x + bit, y + r);
             }
         }
@@ -194,7 +194,7 @@ pub fn undchar(c: u8, x: usize, y: usize) void {
         const byte = caddress[row_index];
         for (0..8) |bit| {
             const flag: u8 = 1;
-            if ((byte & (flag << @intCast(u3, bit))) != 0) {
+            if ((byte & (flag << @as(u3, @intCast(bit)))) != 0) {
                 clrpix(x + bit, y + row_index);
             }
         }

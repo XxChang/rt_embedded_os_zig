@@ -16,8 +16,8 @@ pub fn build(b: *std.Build) !void {
         .target = target,
     });
 
-    exe.addAssemblyFile("ts.s");
-    exe.addObjectFile("image.o");
+    exe.addAssemblyFile(.{ .path = "ts.s" });
+    exe.addObjectFile(.{ .path = "image.o" });
 
     exe.setLinkerScriptPath(.{ .path = "linker.ld" });
 

@@ -16,7 +16,7 @@ pub fn build(b: *std.Build) !void {
         .target = target,
     });
 
-    exe.addAssemblyFile("ts.s");
+    exe.addAssemblyFile(.{ .path = "ts.s" });
     exe.setLinkerScriptPath(.{ .path = "linker.ld" });
 
     b.installArtifact(exe);

@@ -11,13 +11,17 @@ const UART = struct {
     base: usize,
 
     pub fn getc(self: *const UART) u8 {
-        while ((@intToPtr(*volatile u8, self.base + UFR).* & RXFE) != 0) {}
-        return @intToPtr(*volatile u8, self.base + UDR).*;
+        const UART_UFR: *volatile u8 = @ptrFromInt(self.base + UFR);
+        const UART_UDR: *volatile u8 = @ptrFromInt(self.base + UDR);
+        while ((UART_UFR.* & RXFE) != 0) {}
+        return UART_UDR.*;
     }
 
     pub fn putc(self: *const UART, c: u8) void {
-        while ((@intToPtr(*volatile u8, self.base + UFR).* & TXFF) != 0) {}
-        @intToPtr(*volatile u8, self.base + UDR).* = c;
+        const UART_UFR: *volatile u8 = @ptrFromInt(self.base + UFR);
+        const UART_UDR: *volatile u8 = @ptrFromInt(self.base + UDR);
+        while ((UART_UFR.* & TXFF) != 0) {}
+        UART_UDR.* = c;
     }
 
     pub fn gets(self: *const UART, s: [*]u8) void {
