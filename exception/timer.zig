@@ -24,12 +24,11 @@ pub const Timer = struct {
     pub fn init(self: *Timer) void {
         lcd.kprintf("timer_init()\n");
         self.base[TLOAD] = 0x0;
-        self.base[TVALUE] = 0xFFFFFFFF;
+        self.base[TVALUE] = 0x0;
         self.base[TRIS] = 0x0;
         self.base[TMIS] = 0x0;
-        self.base[TLOAD] = 0x100;
         self.base[TCNTL] = 0x62;
-        self.base[TBGLOAD] = 0xF0000;
+        self.base[TBGLOAD] = @divTrunc(0xF0000, 60);
         self.tick = 0;
         self.hh = 0;
         self.mm = 0;
@@ -41,9 +40,7 @@ pub const Timer = struct {
         return self.base[TVALUE];
     }
 
-    pub fn start(self: *Timer) callconv(.C) void {
-        lcd.kprintf("timer_start()\n");
-
+    pub fn start(self: *Timer) void {
         self.base[TCNTL] |= 0x80;
     }
 
@@ -57,29 +54,45 @@ pub const Timer = struct {
 
     pub fn handler(self: *Timer) void {
         self.tick += 1;
-        self.ss = self.tick;
-        self.ss = @mod(self.ss, 60);
-        if (self.ss == 0) {
-            self.mm += 1;
-            if (@mod(self.mm, 60) == 0) {
-                self.mm = 0;
-                self.hh += 1;
+        // self.ss = @divTrunc(self.tick, 120);
+        // self.ss = self.tick;
+        // self.ss = @mod(self.ss, 60);
+        // if (self.ss == 0) {
+        //     self.mm += 1;
+        //     if (@mod(self.mm, 60) == 0) {
+        //         self.mm = 0;
+        //         self.hh += 1;
+        //     }
+        // }
+
+        if (self.tick == 60) {
+            self.tick = 0;
+            self.ss += 1;
+            if (self.ss == 60) {
+                self.ss = 0;
+                self.mm += 1;
+                if (self.mm == 60) {
+                    self.mm = 0;
+                    self.hh += 1;
+                }
+            }
+            for (0..8) |i| {
+                lcd.unkpchar(self.clock[i], @as(u8, @intFromEnum(self.color)), 70 + i);
+            }
+
+            self.clock[7] = @as(u8, @intCast(@mod(self.ss, 10))) + '0';
+            self.clock[6] = @as(u8, @intCast(@divTrunc(self.ss, 10))) + '0';
+            self.clock[4] = @as(u8, @intCast(@mod(self.mm, 10))) + '0';
+            self.clock[3] = @as(u8, @intCast(@divTrunc(self.mm, 10))) + '0';
+            self.clock[1] = @as(u8, @intCast(@mod(self.hh, 10))) + '0';
+            self.clock[0] = @as(u8, @intCast(@divTrunc(self.hh, 10))) + '0';
+
+            lcd.color = self.color;
+            for (0..8) |i| {
+                lcd.kpchar(self.clock[i], @as(u8, @intFromEnum(self.color)), 70 + i);
             }
         }
-        for (0..8) |i| {
-            lcd.unkpchar(self.clock[i], @as(u8, @intFromEnum(self.color)), 70 + i);
-        }
-        const s_v: u8 = @intCast(@mod(self.ss, 10));
-        self.clock[7] = s_v + '0';
-        self.clock[6] = @as(u8, @intCast(@divTrunc(self.ss, 10))) + '0';
-        self.clock[4] = @as(u8, @intCast(@mod(self.mm, 10))) + '0';
-        self.clock[3] = @as(u8, @intCast(@divTrunc(self.mm, 10))) + '0';
-        self.clock[1] = @as(u8, @intCast(@mod(self.hh, 10))) + '0';
-        self.clock[0] = @as(u8, @intCast(@divTrunc(self.hh, 10))) + '0';
-        lcd.color = self.color;
-        for (0..8) |i| {
-            lcd.kpchar(self.clock[i], @as(u8, @intFromEnum(self.color)), 70 + i);
-        }
+
         self.clear_interrupt();
     }
 };

@@ -39,14 +39,17 @@ export fn main() void {
     const flag: u32 = 1;
     define.VIC_INTENABLE.* |= (flag << 4);
     define.VIC_INTENABLE.* |= (flag << 5);
-    timer.timer1.init();
-    timer.timer2.init();
-    timer.timer3.init();
-    timer.timer4.init();
 
+    timer.timer1.init();
     timer.timer1.start();
+
+    timer.timer2.init();
     timer.timer2.start();
+
+    timer.timer3.init();
     timer.timer3.start();
+
+    timer.timer4.init();
     timer.timer4.start();
 
     lcd.kprintf("Enter while(1) loop, handle timer interrupts\n");

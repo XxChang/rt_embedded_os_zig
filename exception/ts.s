@@ -12,6 +12,9 @@ reset_handler:
     ldr sp, =irq_stack_top   // set IRQ mode stack
     bic r0, r0, #0x80
     msr cpsr, r0         // go back to SVC mode with IRQ enabled
+    ; mrc p15, 0, r0, c1, c0, 0
+    ; bic r0, r0, #0x20000000
+    ; mcr p15, 0, r0, c1, c0, 0
     bl main
     b .
 
