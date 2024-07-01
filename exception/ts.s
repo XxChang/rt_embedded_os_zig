@@ -17,6 +17,16 @@ reset_handler:
     ; mcr p15, 0, r0, c1, c0, 0
     bl main
     b .
+lock:
+    mrs r0, cpsr
+    orr r0, r0, #0x80
+    msr cpsr, r0
+    mov pc, lr
+unlock:
+    mrs r0, cpsr
+    bic r0, r0, #0x80
+    msr cpsr, r0
+    mov pc, lr
 
 irq_handler:
     sub lr, lr, #4

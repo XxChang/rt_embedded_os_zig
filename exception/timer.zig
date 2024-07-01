@@ -24,11 +24,11 @@ pub const Timer = struct {
     pub fn init(self: *Timer) void {
         lcd.kprintf("timer_init()\n");
         self.base[TLOAD] = 0x0;
-        self.base[TVALUE] = 0x0;
+        self.base[TVALUE] = 0xFFFFFFFF;
         self.base[TRIS] = 0x0;
         self.base[TMIS] = 0x0;
-        self.base[TCNTL] = 0x62;
-        self.base[TBGLOAD] = @divTrunc(0xF0000, 60);
+        self.base[TCNTL] = 0x66; // 0x0110_0110
+        self.base[TBGLOAD] = 0x400;
         self.tick = 0;
         self.hh = 0;
         self.mm = 0;
@@ -41,6 +41,7 @@ pub const Timer = struct {
     }
 
     pub fn start(self: *Timer) void {
+        lcd.kprintf("timer start\n");
         self.base[TCNTL] |= 0x80;
     }
 
@@ -54,17 +55,6 @@ pub const Timer = struct {
 
     pub fn handler(self: *Timer) void {
         self.tick += 1;
-        // self.ss = @divTrunc(self.tick, 120);
-        // self.ss = self.tick;
-        // self.ss = @mod(self.ss, 60);
-        // if (self.ss == 0) {
-        //     self.mm += 1;
-        //     if (@mod(self.mm, 60) == 0) {
-        //         self.mm = 0;
-        //         self.hh += 1;
-        //     }
-        // }
-
         if (self.tick == 60) {
             self.tick = 0;
             self.ss += 1;

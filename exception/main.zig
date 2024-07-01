@@ -4,26 +4,19 @@ const exception = @import("exception.zig");
 const define = @import("define.zig");
 const uart = @import("uart.zig");
 const timer = @import("timer.zig");
+const kbd = @import("kbd.zig");
 
 export fn IRQ_handler() void {
     const vicstatus = define.VIC_STATUS.*;
-    if ((vicstatus & 0x0010) != 0) {
-        if (timer.timer1.tvalue() == 0) {
-            timer.timer1.handler();
-        }
+    const sicstatus = define.SIC_STATUS.*;
 
-        if (timer.timer2.tvalue() == 0) {
-            timer.timer2.handler();
-        }
+    if ((vicstatus & (1 << 4)) != 0) {
+        timer.timer1.handler();
     }
 
-    if ((vicstatus & 0x0020) != 0) {
-        if (timer.timer3.tvalue() == 0) {
-            timer.timer3.handler();
-        }
-
-        if (timer.timer4.tvalue() == 0) {
-            timer.timer4.handler();
+    if ((vicstatus & (1 << 31)) != 0) {
+        if ((sicstatus & (1 << 3)) != 0) {
+            kbd.kbd.kbd_handler();
         }
     }
 }
@@ -39,18 +32,14 @@ export fn main() void {
     const flag: u32 = 1;
     define.VIC_INTENABLE.* |= (flag << 4);
     define.VIC_INTENABLE.* |= (flag << 5);
+    define.VIC_INTENABLE.* |= (flag << 31);
+
+    define.SIC_INTENABLE.* = 0;
+    define.SIC_INTENABLE.* |= (flag << 3);
 
     timer.timer1.init();
     timer.timer1.start();
 
-    timer.timer2.init();
-    timer.timer2.start();
-
-    timer.timer3.init();
-    timer.timer3.start();
-
-    timer.timer4.init();
-    timer.timer4.start();
-
     lcd.kprintf("Enter while(1) loop, handle timer interrupts\n");
+    kbd.kbd.init();
 }
